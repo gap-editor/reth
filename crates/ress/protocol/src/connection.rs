@@ -77,7 +77,7 @@ impl<P> RessProtocolConnection<P> {
     }
 
     /// Returns the next request id
-    const fn next_id(&mut self) -> u64 {
+    fn next_id(&mut self) -> u64 {
         let id = self.next_id;
         self.next_id += 1;
         id
@@ -117,7 +117,13 @@ where
         match self.provider.headers(request) {
             Ok(headers) => headers,
             Err(error) => {
-                trace!(target: "ress::net::connection", peer_id = %self.peer_id, ?request, %error, "error retrieving headers");
+                trace!(
+                    target: "ress::net::connection",
+                    peer_id = %self.peer_id,
+                    ?request,
+                    %error,
+                    "error retrieving headers"
+                );
                 Default::default()
             }
         }
@@ -127,7 +133,13 @@ where
         match self.provider.block_bodies(request.clone()) {
             Ok(bodies) => bodies,
             Err(error) => {
-                trace!(target: "ress::net::connection", peer_id = %self.peer_id, ?request, %error, "error retrieving block bodies");
+                trace!(
+                    target: "ress::net::connection",
+                    peer_id = %self.peer_id,
+                    ?request,
+                    %error,
+                    "error retrieving block bodies"
+                );
                 Default::default()
             }
         }
@@ -137,11 +149,22 @@ where
         match self.provider.bytecode(code_hash) {
             Ok(Some(bytecode)) => bytecode,
             Ok(None) => {
-                trace!(target: "ress::net::connection", peer_id = %self.peer_id, %code_hash, "bytecode not found");
+                trace!(
+                    target: "ress::net::connection",
+                    peer_id = %self.peer_id,
+                    %code_hash,
+                    "bytecode not found"
+                );
                 Default::default()
             }
             Err(error) => {
-                trace!(target: "ress::net::connection", peer_id = %self.peer_id, %code_hash, %error, "error retrieving bytecode");
+                trace!(
+                    target: "ress::net::connection",
+                    peer_id = %self.peer_id,
+                    %code_hash,
+                    %error,
+                    "error retrieving bytecode"
+                );
                 Default::default()
             }
         }
@@ -156,11 +179,23 @@ where
         let block_hash = request.message;
         let witness = match witness_result {
             Ok(witness) => {
-                trace!(target: "ress::net::connection", %peer_id, %block_hash, len = witness.len(), "witness found");
+                trace!(
+                    target: "ress::net::connection",
+                    %peer_id,
+                    %block_hash,
+                    len = witness.len(),
+                    "witness found"
+                );
                 witness
             }
             Err(error) => {
-                trace!(target: "ress::net::connection", %peer_id, %block_hash, %error, "error retrieving witness");
+                trace!(
+                    target: "ress::net::connection",
+                    %peer_id,
+                    %block_hash,
+                    %error,
+                    "error retrieving witness"
+                );
                 Default::default()
             }
         };
@@ -177,28 +212,48 @@ where
             }
             RessMessage::GetHeaders(req) => {
                 let request = req.message;
-                trace!(target: "ress::net::connection", peer_id = %self.peer_id, ?request, "serving headers");
+                trace!(
+                    target: "ress::net::connection",
+                    peer_id = %self.peer_id,
+                    ?request,
+                    "serving headers"
+                );
                 let header = self.on_headers_request(request);
                 let response = RessProtocolMessage::headers(req.request_id, header);
                 return OnRessMessageOutcome::Response(response.encoded());
             }
             RessMessage::GetBlockBodies(req) => {
                 let request = req.message;
-                trace!(target: "ress::net::connection", peer_id = %self.peer_id, ?request, "serving block bodies");
+                trace!(
+                    target: "ress::net::connection",
+                    peer_id = %self.peer_id,
+                    ?request,
+                    "serving block bodies"
+                );
                 let bodies = self.on_block_bodies_request(request);
                 let response = RessProtocolMessage::block_bodies(req.request_id, bodies);
                 return OnRessMessageOutcome::Response(response.encoded());
             }
             RessMessage::GetBytecode(req) => {
                 let code_hash = req.message;
-                trace!(target: "ress::net::connection", peer_id = %self.peer_id, %code_hash, "serving bytecode");
+                trace!(
+                    target: "ress::net::connection",
+                    peer_id = %self.peer_id,
+                    %code_hash,
+                    "serving bytecode"
+                );
                 let bytecode = self.on_bytecode_request(code_hash);
                 let response = RessProtocolMessage::bytecode(req.request_id, bytecode);
                 return OnRessMessageOutcome::Response(response.encoded());
             }
             RessMessage::GetWitness(req) => {
                 let block_hash = req.message;
-                trace!(target: "ress::net::connection", peer_id = %self.peer_id, %block_hash, "serving witness");
+                trace!(
+                    target: "ress::net::connection",
+                    peer_id = %self.peer_id,
+                    %block_hash,
+                    "serving witness"
+                );
                 let provider = self.provider.clone();
                 self.pending_witnesses.push(Box::pin(async move {
                     let result = provider.witness(block_hash).await;
@@ -276,7 +331,13 @@ where
             if let Poll::Ready(Some(cmd)) = this.commands.poll_next_unpin(cx) {
                 let message = this.on_command(cmd);
                 let encoded = message.encoded();
-                trace!(target: "ress::net::connection", peer_id = %this.peer_id, ?message, encoded = alloy_primitives::hex::encode(&encoded), "Sending peer command");
+                trace!(
+                    target: "ress::net::connection",
+                    peer_id = %this.peer_id,
+                    ?message,
+                    encoded = alloy_primitives::hex::encode(&encoded),
+                    "Sending peer command"
+                );
                 return Poll::Ready(Some(encoded));
             }
 
@@ -291,11 +352,21 @@ where
                 let Some(next) = maybe_msg else { break 'conn };
                 let msg = match RessProtocolMessage::decode_message(&mut &next[..]) {
                     Ok(msg) => {
-                        trace!(target: "ress::net::connection", peer_id = %this.peer_id, message = ?msg.message_type, "Processing message");
+                        trace!(
+                            target: "ress::net::connection",
+                            peer_id = %this.peer_id,
+                            message = ?msg.message_type,
+                            "Processing message"
+                        );
                         msg
                     }
                     Err(error) => {
-                        trace!(target: "ress::net::connection", peer_id = %this.peer_id, %error, "Error decoding peer message");
+                        trace!(
+                            target: "ress::net::connection",
+                            peer_id = %this.peer_id,
+                            %error,
+                            "Error decoding peer message"
+                        );
                         this.report_bad_message();
                         continue;
                     }
