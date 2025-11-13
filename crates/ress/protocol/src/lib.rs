@@ -5,23 +5,23 @@
 //!
 //! ## Node Types
 //!
-//! - **Stateless**: Minimal state, requests data on-demand
+//! - **Stateless**: Minimal state, requests data on-demand  
 //! - **Stateful**: Full Ethereum nodes providing state data
 //!
 //! Valid connections: Stateless ↔ Stateless ✅, Stateless ↔ Stateful ✅, Stateful ↔ Stateful ❌
 //!
 //! ## Messages
 //!
-//! - `NodeType (0x00)`: Handshake
-//! - `GetHeaders/Headers (0x01/0x02)`: Block headers
-//! - `GetBlockBodies/BlockBodies (0x03/0x04)`: Block bodies
-//! - `GetBytecode/Bytecode (0x05/0x06)`: Contract bytecode
+//! - `NodeType (0x00)`: Handshake  
+//! - `GetHeaders/Headers (0x01/0x02)`: Block headers  
+//! - `GetBlockBodies/BlockBodies (0x03/0x04)`: Block bodies  
+//! - `GetBytecode/Bytecode (0x05/0x06)`: Contract bytecode  
 //! - `GetWitness/Witness (0x07/0x08)`: Execution witnesses
 //!
 //! ## Flow
 //!
-//! 1. Exchange `NodeType` for compatibility
-//! 2. Download ancestor blocks via headers/bodies
+//! 1. Exchange `NodeType` for compatibility  
+//! 2. Download ancestor blocks via headers/bodies  
 //! 3. For new payloads: request witness → get missing bytecode → execute
 //!
 //! Protocol version: `ress/1`
