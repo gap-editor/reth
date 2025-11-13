@@ -13,7 +13,7 @@ use alloy_rlp::{BytesMut, Decodable, Encodable, RlpDecodable, RlpEncodable};
 use reth_eth_wire::{message::RequestPair, protocol::Protocol, Capability};
 use reth_ethereum_primitives::BlockBody;
 
-/// An Ress protocol message, containing a message ID and payload.
+/// A Ress protocol message, containing a message ID and payload.
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct RessProtocolMessage {
     /// The unique identifier representing the type of the Ress message.
@@ -196,12 +196,12 @@ pub enum RessMessage {
     /// Represents a headers request message.
     GetHeaders(RequestPair<GetHeaders>),
     /// Represents a headers response message.
-    Headers(RequestPair<Vec<Header>>),
+    Headers(RequestPair<Vec<Header>>>),
 
     /// Represents a block bodies request message.
     GetBlockBodies(RequestPair<Vec<B256>>),
     /// Represents a block bodies response message.
-    BlockBodies(RequestPair<Vec<BlockBody>>),
+    BlockBodies(RequestPair<Vec<BlockBody>>>),
 
     /// Represents a bytecode request message.
     GetBytecode(RequestPair<B256>),
