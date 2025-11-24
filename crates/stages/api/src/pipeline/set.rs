@@ -65,16 +65,16 @@ impl<Provider> Debug for StageSetBuilder<Provider> {
 }
 
 impl<Provider> StageSetBuilder<Provider> {
+    #[track_caller]
     fn index_of(&self, stage_id: StageId) -> usize {
         let index = self.order.iter().position(|&id| id == stage_id);
-
         index.unwrap_or_else(|| panic!("Stage does not exist in set: {stage_id}"))
     }
 
     fn upsert_stage_state(&mut self, stage: Box<dyn Stage<Provider>>, added_at_index: usize) {
         let stage_id = stage.id();
-        if self.stages.insert(stage.id(), StageEntry { stage, enabled: true }).is_some() &&
-            let Some(to_remove) = self
+        if self.stages.insert(stage.id(), StageEntry { stage, enabled: true }).is_some()
+            && let Some(to_remove) = self
                 .order
                 .iter()
                 .enumerate()
@@ -90,6 +90,7 @@ impl<Provider> StageSetBuilder<Provider> {
     /// # Panics
     ///
     /// Panics if the [`Stage`] is not in this set.
+    #[track_caller]
     pub fn set<S: Stage<Provider> + 'static>(mut self, stage: S) -> Self {
         let entry = self
             .stages
@@ -160,8 +161,6 @@ impl<Provider> StageSetBuilder<Provider> {
 
     /// Adds the given [`Stage`] before the stage with the given [`StageId`].
     ///
-    /// If the stage was already in the group, it is removed from its previous place.
-    ///
     /// # Panics
     ///
     /// Panics if the dependency stage is not in this set.
@@ -173,8 +172,6 @@ impl<Provider> StageSetBuilder<Provider> {
     }
 
     /// Adds the given [`Stage`] after the stage with the given [`StageId`].
-    ///
-    /// If the stage was already in the group, it is removed from its previous place.
     ///
     /// # Panics
     ///
@@ -188,8 +185,6 @@ impl<Provider> StageSetBuilder<Provider> {
 
     /// Enables the given stage.
     ///
-    /// All stages within a [`StageSet`] are enabled by default.
-    ///
     /// # Panics
     ///
     /// Panics if the stage is not in this set.
@@ -201,11 +196,6 @@ impl<Provider> StageSetBuilder<Provider> {
     }
 
     /// Disables the given stage.
-    ///
-    /// The disabled [`Stage`] keeps its place in the set, so it can be used for ordering with
-    /// [`StageSetBuilder::add_before`] or [`StageSetBuilder::add_after`], or it can be re-enabled.
-    ///
-    /// All stages within a [`StageSet`] are enabled by default.
     ///
     /// # Panics
     ///
@@ -221,8 +211,6 @@ impl<Provider> StageSetBuilder<Provider> {
     }
 
     /// Disables all given stages. See [`disable`](Self::disable).
-    ///
-    /// If any of the stages is not in this set, it is ignored.
     pub fn disable_all(mut self, stages: &[StageId]) -> Self {
         for stage_id in stages {
             let Some(entry) = self.stages.get_mut(stage_id) else { continue };
@@ -231,9 +219,6 @@ impl<Provider> StageSetBuilder<Provider> {
         self
     }
 
-    /// Disables the given stage if the given closure returns true.
-    ///
-    /// See [`Self::disable`]
     #[track_caller]
     pub fn disable_if<F>(self, stage_id: StageId, f: F) -> Self
     where
@@ -245,9 +230,6 @@ impl<Provider> StageSetBuilder<Provider> {
         self
     }
 
-    /// Disables all given stages if the given closure returns true.
-    ///
-    /// See [`Self::disable`]
     #[track_caller]
     pub fn disable_all_if<F>(self, stages: &[StageId], f: F) -> Self
     where
@@ -263,9 +245,7 @@ impl<Provider> StageSetBuilder<Provider> {
     pub fn build(mut self) -> Vec<Box<dyn Stage<Provider>>> {
         let mut stages = Vec::new();
         for id in &self.order {
-            if let Some(entry) = self.stages.remove(id) &&
-                entry.enabled
-            {
+            if let Some(entry) = self.stages.remove(id) && entry.enabled {
                 stages.push(entry.stage);
             }
         }
