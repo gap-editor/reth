@@ -1,8 +1,18 @@
 {
-  "version": "0.2",
-  "language": "en",
-  "words": ["mycustomlib", "authz"], // Ваши легальные слова
-  "ignorePaths": ["node_modules/**", ".git/**", "dist/**"],
-  "dictionaries": ["en_US", "softwareTerms", "typescript", "node"],
-  "enabledLanguageIds": ["javascript", "python", "typescript", "go", "markdown"]
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "github",
+        "codespell",
+        "workflow"
+    ],
+    "flagWords": [
+        "recieve", // Это слово всегда будет ошибкой
+        "addreess"
+    ],
+    "ignorePaths": [
+        "node_modules/**",
+        ".git/**",
+        "*.lock"
+    ]
 }
