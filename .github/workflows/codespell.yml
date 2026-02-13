@@ -1,0 +1,22 @@
+name: Full Spellcheck
+on: 
+  push:
+  pull_request:
+
+jobs:
+  codespell:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run codespell
+        uses: codespell-project/actions-codespell@v2
+        with:
+          path: .
+          # Флаг, чтобы проверить ВСЕ файлы за один раз и не падать на первой ошибке
+          only_warn: true 
+          check_hidden: true
+          check_filenames: true
+          # Если нужно игнорировать конкретные слова:
+          # ignore_words_list: "word1,word2"
