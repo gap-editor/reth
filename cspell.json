@@ -1,0 +1,8 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": ["mycustomlib", "authz"], // Ваши легальные слова
+  "ignorePaths": ["node_modules/**", ".git/**", "dist/**"],
+  "dictionaries": ["en_US", "softwareTerms", "typescript", "node"],
+  "enabledLanguageIds": ["javascript", "python", "typescript", "go", "markdown"]
+}
